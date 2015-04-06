@@ -3,6 +3,11 @@
 using A = std::tuple<int, int>;
 using B = std::tuple<long, char>;
 
+// Has type
+static_assert(mtl::has_type<char, B>::value, "");
+static_assert(mtl::has_type<long, B>::value, "");
+static_assert(!mtl::has_type<int, B>::value, "");
+
 // Concat
 using C = mtl::concat<A, B>;
 using D = mtl::concat<A>;

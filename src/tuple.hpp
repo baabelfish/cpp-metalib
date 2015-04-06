@@ -93,7 +93,7 @@ template<size_t X>
     struct inc { static constexpr auto value = X + 1; };
 
 template <typename Target, class Tuple, size_t From = 0>
-    using has_type = typename internal::has_type<Target, Tuple, From>::value;
+    using has_type = typename internal::has_type<Target, Tuple, From>;
 
 template<typename Tuple, size_t... Idx>
     using select = std::tuple<std::tuple_element_t<Idx, Tuple>...>;
