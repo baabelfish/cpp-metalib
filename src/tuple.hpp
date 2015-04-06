@@ -29,6 +29,16 @@ namespace internal {
             static constexpr auto value = internal::index_of_type<Target, Tuple>::value != internal::Max;
         };
 
+    template<typename Result, typename... Tuples> struct ConcatHelper;
+    template<typename... Result, typename... Types>
+        struct ConcatHelper<std::tuple<Result...>, std::tuple<Types...>> {
+            using type = std::tuple<Result..., Types...>;
+        };
+    template<typename... Result, typename... Types, typename... Tuples>
+        struct ConcatHelper<std::tuple<Result...>, std::tuple<Types...>, Tuples...> {
+            using type = typename ConcatHelper<std::tuple<Result..., Types...>, Tuples...>::type;
+        };
+
     template<typename Tuple> struct TailHelper;
     template<typename First, typename... Params>
         struct TailHelper<std::tuple<First, Params...>> {
@@ -104,8 +114,8 @@ template<typename Tuple>
 template<typename Tuple>
     using tail = typename internal::TailHelper<Tuple>::type;
 
-// template<typename... Tuples>
-//     using concat = decltype(std::tuple_cat(Tuples()...));
+template<typename... Tuples>
+    using concat = typename internal::ConcatHelper<std::tuple<>, Tuples...>::type;
 
 template<typename Tuple, template<typename> class Operation>
     using transform = typename internal::TransformHelper<Tuple, Operation>::type;
