@@ -104,8 +104,8 @@ template<typename Tuple>
 template<typename Tuple>
     using tail = typename internal::TailHelper<Tuple>::type;
 
-template<typename... Tuples>
-    using concat = decltype(std::tuple_cat(Tuples()...));
+// template<typename... Tuples>
+//     using concat = decltype(std::tuple_cat(Tuples()...));
 
 template<typename Tuple, template<typename> class Operation>
     using transform = typename internal::TransformHelper<Tuple, Operation>::type;
