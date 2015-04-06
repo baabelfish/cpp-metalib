@@ -85,23 +85,6 @@ namespace internal {
 
 } // namespace internal
 
-template<typename T>
-    struct transform_to {
-        template<typename G>
-            struct value { using type = T; };
-    };
-
-template<typename T>
-    struct identity {
-        using type = T;
-    };
-
-template<std::size_t X>
-    struct dec { static constexpr auto value = X - 1; };
-
-template<std::size_t X>
-    struct inc { static constexpr auto value = X + 1; };
-
 template <typename Target, class Tuple, std::size_t From = 0>
     using has_type = typename internal::has_type<Target, Tuple, From>;
 
