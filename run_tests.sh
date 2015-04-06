@@ -1,3 +1,3 @@
 #!/bin/bash
 clang++ --version
-clang++ -std=c++1y test/tuple.cpp
+clang++ -Wall -Werror -std=c++1y test/tuple.cpp

@@ -7,7 +7,7 @@
 namespace mtl {
 
 namespace internal {
-    static constexpr size_t Max = std::numeric_limits<size_t>::max();
+    static constexpr std::size_t Max = std::numeric_limits<std::size_t>::max();
 
     template<typename Target, class Tuple> struct index_of_type;
     template<typename Target>
@@ -24,7 +24,7 @@ namespace internal {
             static constexpr auto value = next == Max ? Max : next + 1;
         };
 
-    template <typename Target, class Tuple, size_t From = 0>
+    template <typename Target, class Tuple, std::size_t From = 0>
         struct has_type {
             static constexpr auto value = internal::index_of_type<Target, Tuple>::value != internal::Max;
         };
@@ -86,16 +86,16 @@ template<typename T>
         using type = T;
     };
 
-template<size_t X>
+template<std::size_t X>
     struct dec { static constexpr auto value = X - 1; };
 
-template<size_t X>
+template<std::size_t X>
     struct inc { static constexpr auto value = X + 1; };
 
-template <typename Target, class Tuple, size_t From = 0>
+template <typename Target, class Tuple, std::size_t From = 0>
     using has_type = typename internal::has_type<Target, Tuple, From>;
 
-template<typename Tuple, size_t... Idx>
+template<typename Tuple, std::size_t... Idx>
     using select = std::tuple<std::tuple_element_t<Idx, Tuple>...>;
 
 template<typename Tuple>
