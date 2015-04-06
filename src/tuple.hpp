@@ -96,7 +96,7 @@ template <typename Target, class Tuple, std::size_t From = 0>
     using has_type = typename internal::has_type<Target, Tuple, From>;
 
 template<typename Tuple, std::size_t... Idx>
-    using select = std::tuple<std::tuple_element_t<Idx, Tuple>...>;
+    using select = std::tuple<typename std::tuple_element<Idx, Tuple>::type...>;
 
 template<typename Tuple>
     using head = typename std::tuple_element<0, Tuple>::type;
