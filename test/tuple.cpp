@@ -63,6 +63,14 @@ static_assert(std::is_same<std::tuple<int, char, float, long>,
 static_assert(std::is_same<std::tuple<char, float, char, long>,
                            mtl::without<int, std::tuple<int, char, int, float, char, long>>>::value, "");
 
+// Tuple
+// ================================================================================
+static_assert(std::is_same<std::tuple<int, long, char, long, int, long>,
+                           mtl::zip<std::tuple<int, char, int>, std::tuple<long, long, long>>>::value, "");
+static_assert(std::is_same<std::tuple<int, char, char>,
+                           mtl::zip<std::tuple<int>, std::tuple<char, char>>>::value, "");
+
+
 int main() {
     return 0;
 }

@@ -13,6 +13,7 @@ struct no_ints {
 using Example = std::tuple<int, long, char, long, int, int>;
 using A = std::tuple<int, int>;
 using B = std::tuple<long>;
+using C = std::tuple<long, char>;
 using namespace mtl;
 ```
 
@@ -27,6 +28,7 @@ using namespace mtl;
 | filter    | Filters types from a tuple with a predicate | ``filter<no_ints, Example> // std::tuple<long, char, long>`` |
 | unique    | Returns a new tuple with only unique types  | ``unique<Example> // std::tuple<int, long, char>`` |
 | without   | Returns tuple without type T                | ``without<int, Example> // std::tuple<long, char, long>`` |
+| zip       | Zips two tuples                             | ``zip<A, C> // std::tuple<int, long, int, char>`` |
 
 
 # Constants
