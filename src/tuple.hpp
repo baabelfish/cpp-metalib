@@ -83,30 +83,30 @@ namespace internal {
             using type = typename UniqueHelper<std::tuple<Rest...>, std::tuple<Result..., Head>>::type;
         };
 
+    template<typename T>
+        struct WithoutFilter {
+            template<typename G>
+                struct Predicate {
+                    static constexpr auto value = !std::is_same<T, G>::value;
+                };
+        };
+
+    template<typename T, typename Tuple> struct WithoutHelper;
+    template<typename T, typename... Params>
+        struct WithoutHelper<T, std::tuple<Params...>> {
+            using type = typename FilterHelper<WithoutFilter<T>::template Predicate, std::tuple<Params...>, std::tuple<>>::type;
+        };
+
 } // namespace internal
 
-template <typename Target, class Tuple, std::size_t From = 0>
-    using has_type = typename internal::has_type<Target, Tuple, From>;
-
-template<typename Tuple, std::size_t... Idx>
-    using select = std::tuple<typename std::tuple_element<Idx, Tuple>::type...>;
-
-template<typename Tuple>
-    using head = typename std::tuple_element<0, Tuple>::type;
-
-template<typename Tuple>
-    using tail = typename internal::TailHelper<Tuple>::type;
-
-template<typename... Tuples>
-    using concat = typename internal::ConcatHelper<std::tuple<>, Tuples...>::type;
-
-template<typename Tuple, template<typename> class Operation>
-    using transform = typename internal::TransformHelper<Tuple, Operation>::type;
-
-template<template<typename> class Predicate, typename Tuple>
-    using filter = typename internal::FilterHelper<Predicate, Tuple, std::tuple<>>::type;
-
-template<typename Tuple>
-    using unique = typename internal::UniqueHelper<Tuple, std::tuple<>>::type;
+template <typename Target, class Tuple, std::size_t From = 0> using has_type = typename internal::has_type<Target, Tuple, From>;
+template<typename Tuple, std::size_t... Idx> using select = std::tuple<typename std::tuple_element<Idx, Tuple>::type...>;
+template<typename Tuple> using head = typename std::tuple_element<0, Tuple>::type;
+template<typename Tuple> using tail = typename internal::TailHelper<Tuple>::type;
+template<typename... Tuples> using concat = typename internal::ConcatHelper<std::tuple<>, Tuples...>::type;
+template<typename Tuple, template<typename> class Operation> using transform = typename internal::TransformHelper<Tuple, Operation>::type;
+template<template<typename> class Predicate, typename Tuple> using filter = typename internal::FilterHelper<Predicate, Tuple, std::tuple<>>::type;
+template<typename Tuple> using unique = typename internal::UniqueHelper<Tuple, std::tuple<>>::type;
+template<typename T, typename Tuple> using without = typename internal::WithoutHelper<T, Tuple>::type;
 
 } // namespace mtl

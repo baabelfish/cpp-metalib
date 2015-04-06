@@ -26,6 +26,7 @@ using namespace mtl;
 | transform | Transforms types in a tuple                 | ``transform<A, identity> // std::tuple<int, int>`` |
 | filter    | Filters types from a tuple with a predicate | ``filter<no_ints, Example> // std::tuple<long, char, long>`` |
 | unique    | Returns a new tuple with only unique types  | ``unique<Example> // std::tuple<int, long, char>`` |
+| without   | Returns tuple without type T                | ``without<int, Example> // std::tuple<long, char, long>`` |
 
 
 # Constants
