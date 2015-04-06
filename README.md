@@ -1,7 +1,7 @@
 cpp-metalib [![Build Status](https://travis-ci.org/baabelfish/cpp-metalib.svg?branch=master)](https://travis-ci.org/baabelfish/cpp-metalib)
 ===========
 
-Header only metaprogramming library.
+Header only metaprogramming library for C++11.
 
 # Tuples
 
