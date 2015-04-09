@@ -39,3 +39,20 @@ using namespace mtl;
 | pow           | constexpr pow                               | ``pow(4) == 16`` |
 | identity      | [T] -> [T]                                  | ``identity<char>::type // char`` |
 | transform\_to | [G] -> [T]                                  | ``transform_to<char>::value<int>::type // char`` |
+
+
+# Function traits
+
+```c++
+auto my_function = [](int a, int b) {
+    return (short)3;
+};
+
+using my_function_traits = mtl::function_traits<decltype(my_function)>;
+// my_function_traits::return_type <-> short
+// my_function_traits::return_type_decayed <-> short
+// my_function_traits::arg_types <-> std::tuple<int, int>
+// my_function_traits::arg_types_decayed <-> std::tuple<int, int>
+// my_function_traits::arg_size <-> 2
+
+```
