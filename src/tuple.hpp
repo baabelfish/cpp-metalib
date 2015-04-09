@@ -29,58 +29,58 @@ namespace internal {
             static constexpr auto value = internal::index_of_type<Target, Tuple>::value != internal::Max;
         };
 
-    template<typename Result, typename... Tuples> struct ConcatHelper;
+    template<typename Result, typename... Tuples> struct ConcatImpl;
     template<typename... Result, typename... Types>
-        struct ConcatHelper<std::tuple<Result...>, std::tuple<Types...>> {
+        struct ConcatImpl<std::tuple<Result...>, std::tuple<Types...>> {
             using type = std::tuple<Result..., Types...>;
         };
     template<typename... Result, typename... Types, typename... Tuples>
-        struct ConcatHelper<std::tuple<Result...>, std::tuple<Types...>, Tuples...> {
-            using type = typename ConcatHelper<std::tuple<Result..., Types...>, Tuples...>::type;
+        struct ConcatImpl<std::tuple<Result...>, std::tuple<Types...>, Tuples...> {
+            using type = typename ConcatImpl<std::tuple<Result..., Types...>, Tuples...>::type;
         };
 
-    template<typename Tuple> struct TailHelper;
+    template<typename Tuple> struct TailImpl;
     template<typename First, typename... Params>
-        struct TailHelper<std::tuple<First, Params...>> {
+        struct TailImpl<std::tuple<First, Params...>> {
             using type = std::tuple<Params...>;
         };
 
-    template<typename Tuple, template<typename> class Operation> struct TransformHelper;
+    template<typename Tuple, template<typename> class Operation> struct TransformImpl;
     template<template<typename> class Operation, typename... Params>
-        struct TransformHelper<std::tuple<Params...>, Operation> {
+        struct TransformImpl<std::tuple<Params...>, Operation> {
             using type = std::tuple<typename Operation<Params>::type...>;
         };
 
-    template<template<typename> class Predicate, typename Tuple, typename Result, typename Enable = void> struct FilterHelper;
+    template<template<typename> class Predicate, typename Tuple, typename Result, typename Enable = void> struct FilterImpl;
     template<template<typename> class Predicate, typename... Done>
-        struct FilterHelper<Predicate, std::tuple<>, std::tuple<Done...>> {
+        struct FilterImpl<Predicate, std::tuple<>, std::tuple<Done...>> {
             using type = std::tuple<Done...>;
         };
     template<template<typename> class Predicate, typename Head, typename... Tail, typename... Done>
-        struct FilterHelper<Predicate, std::tuple<Head, Tail...>, std::tuple<Done...>,
+        struct FilterImpl<Predicate, std::tuple<Head, Tail...>, std::tuple<Done...>,
             typename std::enable_if<!Predicate<Head>::value>::type> {
-            using type = typename FilterHelper<Predicate, std::tuple<Tail...>, std::tuple<Done...>>::type;
+            using type = typename FilterImpl<Predicate, std::tuple<Tail...>, std::tuple<Done...>>::type;
         };
     template<template<typename> class Predicate, typename Head, typename... Tail, typename... Done>
-        struct FilterHelper<Predicate, std::tuple<Head, Tail...>, std::tuple<Done...>,
+        struct FilterImpl<Predicate, std::tuple<Head, Tail...>, std::tuple<Done...>,
             typename std::enable_if<Predicate<Head>::value>::type> {
-            using type = typename FilterHelper<Predicate, std::tuple<Tail...>, std::tuple<Done..., Head>>::type;
+            using type = typename FilterImpl<Predicate, std::tuple<Tail...>, std::tuple<Done..., Head>>::type;
         };
 
-    template<typename Tuple, typename Result, typename Enabled = void> struct UniqueHelper;
+    template<typename Tuple, typename Result, typename Enabled = void> struct UniqueImpl;
     template<typename... Result>
-        struct UniqueHelper<std::tuple<>, std::tuple<Result...>> {
+        struct UniqueImpl<std::tuple<>, std::tuple<Result...>> {
             using type = std::tuple<Result...>;
         };
     template<typename... Result, typename Head, typename... Rest>
-        struct UniqueHelper<std::tuple<Head, Rest...>, std::tuple<Result...>,
+        struct UniqueImpl<std::tuple<Head, Rest...>, std::tuple<Result...>,
             typename std::enable_if<has_type<Head, std::tuple<Result...>>::value>::type> {
-            using type = typename UniqueHelper<std::tuple<Rest...>, std::tuple<Result...>>::type;
+            using type = typename UniqueImpl<std::tuple<Rest...>, std::tuple<Result...>>::type;
         };
     template<typename... Result, typename Head, typename... Rest>
-        struct UniqueHelper<std::tuple<Head, Rest...>, std::tuple<Result...>,
+        struct UniqueImpl<std::tuple<Head, Rest...>, std::tuple<Result...>,
             typename std::enable_if<!has_type<Head, std::tuple<Result...>>::value>::type> {
-            using type = typename UniqueHelper<std::tuple<Rest...>, std::tuple<Result..., Head>>::type;
+            using type = typename UniqueImpl<std::tuple<Rest...>, std::tuple<Result..., Head>>::type;
         };
 
     template<typename T>
@@ -90,41 +90,41 @@ namespace internal {
                     static constexpr auto value = !std::is_same<T, G>::value;
                 };
         };
-    template<typename T, typename Tuple> struct WithoutHelper;
+    template<typename T, typename Tuple> struct WithoutImpl;
     template<typename T, typename... Params>
-        struct WithoutHelper<T, std::tuple<Params...>> {
-            using type = typename FilterHelper<WithoutFilter<T>::template Predicate, std::tuple<Params...>, std::tuple<>>::type;
+        struct WithoutImpl<T, std::tuple<Params...>> {
+            using type = typename FilterImpl<WithoutFilter<T>::template Predicate, std::tuple<Params...>, std::tuple<>>::type;
         };
 
-    template<typename A, typename B, typename Result> struct InterleaveHelper;
+    template<typename A, typename B, typename Result> struct InterleaveImpl;
     template<typename... Result>
-        struct InterleaveHelper<std::tuple<>, std::tuple<>, std::tuple<Result...>> {
+        struct InterleaveImpl<std::tuple<>, std::tuple<>, std::tuple<Result...>> {
             using type = std::tuple<Result...>;
         };
     template<typename... AParams, typename... Result>
-        struct InterleaveHelper<std::tuple<AParams...>, std::tuple<>, std::tuple<Result...>> {
+        struct InterleaveImpl<std::tuple<AParams...>, std::tuple<>, std::tuple<Result...>> {
             using type = std::tuple<Result..., AParams...>;
         };
     template<typename... BParams, typename... Result>
-        struct InterleaveHelper<std::tuple<>, std::tuple<BParams...>, std::tuple<Result...>> {
+        struct InterleaveImpl<std::tuple<>, std::tuple<BParams...>, std::tuple<Result...>> {
             using type = std::tuple<Result..., BParams...>;
         };
     template<typename AFirst, typename... AParams, typename BFirst, typename... BParams, typename... Result>
-        struct InterleaveHelper<std::tuple<AFirst, AParams...>, std::tuple<BFirst, BParams...>, std::tuple<Result...>> {
-            using type = typename InterleaveHelper<std::tuple<AParams...>, std::tuple<BParams...>, std::tuple<Result..., AFirst, BFirst>>::type;
+        struct InterleaveImpl<std::tuple<AFirst, AParams...>, std::tuple<BFirst, BParams...>, std::tuple<Result...>> {
+            using type = typename InterleaveImpl<std::tuple<AParams...>, std::tuple<BParams...>, std::tuple<Result..., AFirst, BFirst>>::type;
         };
 
 } // namespace internal
 
-template <typename Target, class Tuple, std::size_t From = 0> using has_type = typename internal::has_type<Target, Tuple, From>;
+template<typename Target, class Tuple, std::size_t From = 0> using has_type = typename internal::has_type<Target, Tuple, From>;
 template<typename Tuple, std::size_t... Idx> using select = std::tuple<typename std::tuple_element<Idx, Tuple>::type...>;
 template<typename Tuple> using head = typename std::tuple_element<0, Tuple>::type;
-template<typename Tuple> using tail = typename internal::TailHelper<Tuple>::type;
-template<typename... Tuples> using concat = typename internal::ConcatHelper<std::tuple<>, Tuples...>::type;
-template<typename Tuple, template<typename> class Operation> using transform = typename internal::TransformHelper<Tuple, Operation>::type;
-template<template<typename> class Predicate, typename Tuple> using filter = typename internal::FilterHelper<Predicate, Tuple, std::tuple<>>::type;
-template<typename Tuple> using unique = typename internal::UniqueHelper<Tuple, std::tuple<>>::type;
-template<typename T, typename Tuple> using without = typename internal::WithoutHelper<T, Tuple>::type;
-template<typename A, typename B> using interleave = typename internal::InterleaveHelper<A, B, std::tuple<>>::type;
+template<typename Tuple> using tail = typename internal::TailImpl<Tuple>::type;
+template<typename... Tuples> using concat = typename internal::ConcatImpl<std::tuple<>, Tuples...>::type;
+template<typename Tuple, template<typename> class Operation> using transform = typename internal::TransformImpl<Tuple, Operation>::type;
+template<template<typename> class Predicate, typename Tuple> using filter = typename internal::FilterImpl<Predicate, Tuple, std::tuple<>>::type;
+template<typename Tuple> using unique = typename internal::UniqueImpl<Tuple, std::tuple<>>::type;
+template<typename T, typename Tuple> using without = typename internal::WithoutImpl<T, Tuple>::type;
+template<typename A, typename B> using interleave = typename internal::InterleaveImpl<A, B, std::tuple<>>::type;
 
 } // namespace mtl
