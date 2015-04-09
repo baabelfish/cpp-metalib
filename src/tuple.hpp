@@ -51,7 +51,7 @@ namespace internal {
             using type = std::tuple<typename Operation<Params>::type...>;
         };
 
-    template<template<typename> class Predicate, typename Tuple, typename Result, typename Enable = void> struct FilterImpl;
+    template<template<typename> class Predicate, typename Tuple, typename Result = std::tuple<>, typename Enable = void> struct FilterImpl;
     template<template<typename> class Predicate, typename... Done>
         struct FilterImpl<Predicate, std::tuple<>, std::tuple<Done...>> {
             using type = std::tuple<Done...>;
@@ -67,7 +67,7 @@ namespace internal {
             using type = typename FilterImpl<Predicate, std::tuple<Tail...>, std::tuple<Done..., Head>>::type;
         };
 
-    template<typename Tuple, typename Result, typename Enabled = void> struct UniqueImpl;
+    template<typename Tuple, typename Result = std::tuple<>, typename Enabled = void> struct UniqueImpl;
     template<typename... Result>
         struct UniqueImpl<std::tuple<>, std::tuple<Result...>> {
             using type = std::tuple<Result...>;
@@ -96,7 +96,7 @@ namespace internal {
             using type = typename FilterImpl<WithoutFilter<T>::template Predicate, std::tuple<Params...>, std::tuple<>>::type;
         };
 
-    template<typename A, typename B, typename Result> struct InterleaveImpl;
+    template<typename A, typename B, typename Result = std::tuple<>> struct InterleaveImpl;
     template<typename... Result>
         struct InterleaveImpl<std::tuple<>, std::tuple<>, std::tuple<Result...>> {
             using type = std::tuple<Result...>;
@@ -114,6 +114,10 @@ namespace internal {
             using type = typename InterleaveImpl<std::tuple<AParams...>, std::tuple<BParams...>, std::tuple<Result..., AFirst, BFirst>>::type;
         };
 
+    template<typename A, typename B>
+        struct MergeImpl {
+        };
+
 } // namespace internal
 
 template<typename Target, class Tuple, std::size_t From = 0> using has_type = typename internal::has_type<Target, Tuple, From>;
@@ -122,9 +126,10 @@ template<typename Tuple> using head = typename std::tuple_element<0, Tuple>::typ
 template<typename Tuple> using tail = typename internal::TailImpl<Tuple>::type;
 template<typename... Tuples> using concat = typename internal::ConcatImpl<std::tuple<>, Tuples...>::type;
 template<typename Tuple, template<typename> class Operation> using transform = typename internal::TransformImpl<Tuple, Operation>::type;
-template<template<typename> class Predicate, typename Tuple> using filter = typename internal::FilterImpl<Predicate, Tuple, std::tuple<>>::type;
-template<typename Tuple> using unique = typename internal::UniqueImpl<Tuple, std::tuple<>>::type;
+template<template<typename> class Predicate, typename Tuple> using filter = typename internal::FilterImpl<Predicate, Tuple>::type;
+template<typename Tuple> using unique = typename internal::UniqueImpl<Tuple>::type;
 template<typename T, typename Tuple> using without = typename internal::WithoutImpl<T, Tuple>::type;
-template<typename A, typename B> using interleave = typename internal::InterleaveImpl<A, B, std::tuple<>>::type;
+template<typename A, typename B> using interleave = typename internal::InterleaveImpl<A, B>::type;
+// template<typename A, typename B> using merge = typename internal::MergeImpl<A, B>::type;
 
 } // namespace mtl
