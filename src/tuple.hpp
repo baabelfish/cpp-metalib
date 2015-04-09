@@ -96,22 +96,22 @@ namespace internal {
             using type = typename FilterHelper<WithoutFilter<T>::template Predicate, std::tuple<Params...>, std::tuple<>>::type;
         };
 
-    template<typename A, typename B, typename Result> struct ZipHelper;
+    template<typename A, typename B, typename Result> struct InterleaveHelper;
     template<typename... Result>
-        struct ZipHelper<std::tuple<>, std::tuple<>, std::tuple<Result...>> {
+        struct InterleaveHelper<std::tuple<>, std::tuple<>, std::tuple<Result...>> {
             using type = std::tuple<Result...>;
         };
     template<typename... AParams, typename... Result>
-        struct ZipHelper<std::tuple<AParams...>, std::tuple<>, std::tuple<Result...>> {
+        struct InterleaveHelper<std::tuple<AParams...>, std::tuple<>, std::tuple<Result...>> {
             using type = std::tuple<Result..., AParams...>;
         };
     template<typename... BParams, typename... Result>
-        struct ZipHelper<std::tuple<>, std::tuple<BParams...>, std::tuple<Result...>> {
+        struct InterleaveHelper<std::tuple<>, std::tuple<BParams...>, std::tuple<Result...>> {
             using type = std::tuple<Result..., BParams...>;
         };
     template<typename AFirst, typename... AParams, typename BFirst, typename... BParams, typename... Result>
-        struct ZipHelper<std::tuple<AFirst, AParams...>, std::tuple<BFirst, BParams...>, std::tuple<Result...>> {
-            using type = typename ZipHelper<std::tuple<AParams...>, std::tuple<BParams...>, std::tuple<Result..., AFirst, BFirst>>::type;
+        struct InterleaveHelper<std::tuple<AFirst, AParams...>, std::tuple<BFirst, BParams...>, std::tuple<Result...>> {
+            using type = typename InterleaveHelper<std::tuple<AParams...>, std::tuple<BParams...>, std::tuple<Result..., AFirst, BFirst>>::type;
         };
 
 } // namespace internal
@@ -125,6 +125,6 @@ template<typename Tuple, template<typename> class Operation> using transform = t
 template<template<typename> class Predicate, typename Tuple> using filter = typename internal::FilterHelper<Predicate, Tuple, std::tuple<>>::type;
 template<typename Tuple> using unique = typename internal::UniqueHelper<Tuple, std::tuple<>>::type;
 template<typename T, typename Tuple> using without = typename internal::WithoutHelper<T, Tuple>::type;
-template<typename A, typename B> using zip = typename internal::ZipHelper<A, B, std::tuple<>>::type;
+template<typename A, typename B> using interleave = typename internal::InterleaveHelper<A, B, std::tuple<>>::type;
 
 } // namespace mtl
