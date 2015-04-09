@@ -56,3 +56,11 @@ using my_function_traits = mtl::function_traits<decltype(my_function)>;
 // my_function_traits::arg_size <-> 2
 
 ```
+
+| Property              | Description                     |
+|-----------------------|---------------------------------|
+| return\_type          | Return type of the function     |
+| return\_type\_decayed | Return type decayed             |
+| arg\_types            | Argument types as tuple         |
+| arg\_types\_deacyed   | Decayed argument types as tuple |
+| arg\_size             | Amount of arguments             |
