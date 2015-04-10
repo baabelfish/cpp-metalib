@@ -75,17 +75,13 @@ static_assert(std::is_same<std::tuple<int, char, char>,
 // ================================================================================
 using MA = std::tuple<float, int, float>;
 using MB = std::tuple<int, char, char>;
-using MVec = std::tuple<float, int, char>;
-
-using MC = mtl::merge<MA, MB, MVec>;
-static_assert(std::tuple_size<MC>::value == 6, "");
+using MC = mtl::merge<MA, MB, std::tuple<float, int, char>>;
 static_assert(std::is_same<std::tuple<float, int, float, int, char, char>, MC>::value, "");
 
 // Sort
 // ================================================================================
 using ST = std::tuple<int, char, int, int, float, char, float, int>;
-using SV = std::tuple<char, int, float>;
-using SC = mtl::sort<ST, SV>;
+using SC = mtl::sort<ST, std::tuple<char, int, float>>;
 static_assert(std::is_same<std::tuple<char, char, int, int, int, int, float, float>, SC>::value, "");
 
 int main() { return 0; }
