@@ -115,27 +115,60 @@ namespace internal {
             using type = typename InterleaveImpl<std::tuple<AParams...>, std::tuple<BParams...>, std::tuple<Result..., AFirst, BFirst>>::type;
         };
 
-    template<typename A, typename B, typename Comparison, typename Result = std::tuple<>, typename Enabled = void> struct MergeImpl {};
-    template<typename... Right, typename... ResultArgs, typename... CompArgs>
-        struct MergeImpl<std::tuple<>, std::tuple<Right...>, std::tuple<CompArgs...>, std::tuple<ResultArgs...>> {
-            using type = std::tuple<ResultArgs..., Right...>;
-        };
-    template<typename... Left, typename... ResultArgs, typename... CompArgs>
-        struct MergeImpl<std::tuple<Left...>, std::tuple<>, std::tuple<CompArgs...>, std::tuple<ResultArgs...>> {
-            using type = std::tuple<ResultArgs..., Left...>;
-        };
-    template<typename LeftHead, typename RightHead, typename... Left, typename... Right, typename... CompArgs, typename... ResultArgs>
-        struct MergeImpl<std::tuple<LeftHead, Left...>, std::tuple<RightHead, Right...>, std::tuple<CompArgs...>, std::tuple<ResultArgs...>,
-                typename std::enable_if<index_of_type<RightHead, std::tuple<CompArgs...>>::value < index_of_type<LeftHead, std::tuple<CompArgs...>>::value>::type> {
-            using type = typename MergeImpl<std::tuple<LeftHead, Left...>, std::tuple<Right...>, std::tuple<CompArgs...>, std::tuple<ResultArgs..., RightHead>>::type;
-        };
-    template<typename LeftHead, typename RightHead, typename... Left, typename... Right, typename... CompArgs, typename... ResultArgs>
-        struct MergeImpl<std::tuple<LeftHead, Left...>, std::tuple<RightHead, Right...>, std::tuple<CompArgs...>, std::tuple<ResultArgs...>,
-                typename std::enable_if<index_of_type<LeftHead, std::tuple<CompArgs...>>::value
-                                <= index_of_type<RightHead, std::tuple<CompArgs...>>::value>::type> {
-            using type = typename MergeImpl<std::tuple<Left...>, std::tuple<RightHead, Right...>, std::tuple<CompArgs...>, std::tuple<ResultArgs..., LeftHead>>::type;
+    template<typename T1, typename T2, typename CompT>
+        struct LessOrSame {
+            static constexpr auto value = index_of_type<T1, CompT>::value <= index_of_type<T2, CompT>::value;
         };
 
+    template<typename A, typename B, typename Comparison, typename Result = std::tuple<>, typename Enabled = void> struct MergeImpl {};
+    template<typename... Right, typename... ResultArgs, typename Comp>
+        struct MergeImpl<std::tuple<>, std::tuple<Right...>, Comp, std::tuple<ResultArgs...>> {
+            using type = std::tuple<ResultArgs..., Right...>;
+        };
+    template<typename... Left, typename... ResultArgs, typename Comp>
+        struct MergeImpl<std::tuple<Left...>, std::tuple<>, Comp, std::tuple<ResultArgs...>> {
+            using type = std::tuple<ResultArgs..., Left...>;
+        };
+    template<typename LeftHead, typename RightHead, typename... Left, typename... Right, typename Comp, typename... ResultArgs>
+        struct MergeImpl<std::tuple<LeftHead, Left...>, std::tuple<RightHead, Right...>, Comp, std::tuple<ResultArgs...>,
+                typename std::enable_if<!LessOrSame<LeftHead, RightHead, Comp>::value>::type> {
+            using type = typename MergeImpl<std::tuple<LeftHead, Left...>, std::tuple<Right...>, Comp, std::tuple<ResultArgs..., RightHead>>::type;
+        };
+    template<typename LeftHead, typename RightHead, typename... Left, typename... Right, typename Comp, typename... ResultArgs>
+        struct MergeImpl<std::tuple<LeftHead, Left...>, std::tuple<RightHead, Right...>, Comp, std::tuple<ResultArgs...>,
+                typename std::enable_if<LessOrSame<LeftHead, RightHead, Comp>::value>::type> {
+            using type = typename MergeImpl<std::tuple<Left...>, std::tuple<RightHead, Right...>, Comp, std::tuple<ResultArgs..., LeftHead>>::type;
+        };
+
+    template<typename Tuple, typename Pivot, typename Comp, typename Left = std::tuple<>, typename Right = std::tuple<>, typename Enabled = void> struct PartitionImpl;
+    template<typename Pivot, typename Comp, typename... Left, typename... Right>
+        struct PartitionImpl<std::tuple<>, Pivot, Comp, std::tuple<Left...>, std::tuple<Right...>> {
+            using left = std::tuple<Left...>;
+            using right = std::tuple<Right...>;
+        };
+    template<typename Head, typename... Rest, typename Pivot, typename Comp, typename... Left, typename... Right>
+        struct PartitionImpl<std::tuple<Head, Rest...>, Pivot, Comp, std::tuple<Left...>, std::tuple<Right...>,
+                     typename std::enable_if<LessOrSame<Head, Pivot, Comp>::value>::type> {
+            using left = typename PartitionImpl<std::tuple<Rest...>, Pivot, Comp, std::tuple<Left..., Head>, std::tuple<Right...>>::left;
+            using right = typename PartitionImpl<std::tuple<Rest...>, Pivot, Comp, std::tuple<Left..., Head>, std::tuple<Right...>>::right;
+        };
+    template<typename Head, typename... Rest, typename Pivot, typename Comp, typename... Left, typename... Right>
+        struct PartitionImpl<std::tuple<Head, Rest...>, Pivot, Comp, std::tuple<Left...>, std::tuple<Right...>,
+                     typename std::enable_if<!LessOrSame<Head, Pivot, Comp>::value>::type> {
+            using left = typename PartitionImpl<std::tuple<Rest...>, Pivot, Comp, std::tuple<Left...>, std::tuple<Right..., Head>>::left;
+            using right = typename PartitionImpl<std::tuple<Rest...>, Pivot, Comp, std::tuple<Left...>, std::tuple<Right..., Head>>::right;
+        };
+
+    template<typename Tuple, typename Comparison, typename Enabled = void> struct SortImpl;
+    template<typename Comparison> struct SortImpl<std::tuple<>, Comparison> { using type = std::tuple<>; };
+    template<typename Head, typename Comparison> struct SortImpl<std::tuple<Head>, Comparison> { using type = std::tuple<Head>; };
+    template<typename Head, typename... Rest, typename Comparison>
+        struct SortImpl<std::tuple<Head, Rest...>, Comparison> {
+            using partition = PartitionImpl<std::tuple<Rest...>, Head, Comparison>;
+            using sorted_left = typename SortImpl<typename partition::left, Comparison>::type;
+            using sorted_right = typename SortImpl<typename partition::right, Comparison>::type;
+            using type = typename ConcatImpl<sorted_left, std::tuple<Head>, sorted_right>::type;
+        };
 
 } // namespace internal
 
@@ -150,5 +183,7 @@ template<typename Tuple> using unique = typename internal::UniqueImpl<Tuple>::ty
 template<typename T, typename Tuple> using without = typename internal::WithoutImpl<T, Tuple>::type;
 template<typename A, typename B> using interleave = typename internal::InterleaveImpl<A, B>::type;
 template<typename A, typename B, typename Comparison> using merge = typename internal::MergeImpl<A, B, unique<Comparison>>::type;
+template<typename Tuple, typename Pivot, typename Comparison> using partition = typename internal::PartitionImpl<Tuple, Pivot, Comparison>::type;
+template<typename Tuple, typename Comparison> using sort = typename internal::SortImpl<Tuple, Comparison>::type;
 
 } // namespace mtl

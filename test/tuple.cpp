@@ -81,4 +81,11 @@ using MC = mtl::merge<MA, MB, MVec>;
 static_assert(std::tuple_size<MC>::value == 6, "");
 static_assert(std::is_same<std::tuple<float, int, float, int, char, char>, MC>::value, "");
 
+// Sort
+// ================================================================================
+using ST = std::tuple<int, char, int, int, float, char, float, int>;
+using SV = std::tuple<char, int, float>;
+using SC = mtl::sort<ST, SV>;
+static_assert(std::is_same<std::tuple<char, char, int, int, int, int, float, float>, SC>::value, "");
+
 int main() { return 0; }
