@@ -1,5 +1,7 @@
 #pragma once
 
+#include <typeinfo>
+
 namespace mtl {
 
 template<typename T>
@@ -26,6 +28,11 @@ template<typename T>
     struct transform_to {
         template<typename G>
             struct value { using type = T; };
+    };
+
+template<typename T>
+    struct TypeHash {
+        static constexpr auto value = typeid(T).hash_code();
     };
 
 } // namespace mtl

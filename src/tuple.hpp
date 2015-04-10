@@ -1,6 +1,7 @@
 #pragma once
 
 #include <tuple>
+#include <typeinfo>
 #include <limits>
 #include <utility>
 
@@ -114,9 +115,27 @@ namespace internal {
             using type = typename InterleaveImpl<std::tuple<AParams...>, std::tuple<BParams...>, std::tuple<Result..., AFirst, BFirst>>::type;
         };
 
-    template<typename A, typename B>
-        struct MergeImpl {
+    template<typename A, typename B, typename Comparison, typename Result = std::tuple<>, typename Enabled = void> struct MergeImpl {};
+    template<typename... Right, typename... ResultArgs, typename... CompArgs>
+        struct MergeImpl<std::tuple<>, std::tuple<Right...>, std::tuple<CompArgs...>, std::tuple<ResultArgs...>> {
+            using type = std::tuple<ResultArgs..., Right...>;
         };
+    template<typename... Left, typename... ResultArgs, typename... CompArgs>
+        struct MergeImpl<std::tuple<Left...>, std::tuple<>, std::tuple<CompArgs...>, std::tuple<ResultArgs...>> {
+            using type = std::tuple<ResultArgs..., Left...>;
+        };
+    template<typename LeftHead, typename RightHead, typename... Left, typename... Right, typename... CompArgs, typename... ResultArgs>
+        struct MergeImpl<std::tuple<LeftHead, Left...>, std::tuple<RightHead, Right...>, std::tuple<CompArgs...>, std::tuple<ResultArgs...>,
+                typename std::enable_if<index_of_type<RightHead, std::tuple<CompArgs...>>::value < index_of_type<LeftHead, std::tuple<CompArgs...>>::value>::type> {
+            using type = typename MergeImpl<std::tuple<LeftHead, Left...>, std::tuple<Right...>, std::tuple<CompArgs...>, std::tuple<ResultArgs..., RightHead>>::type;
+        };
+    template<typename LeftHead, typename RightHead, typename... Left, typename... Right, typename... CompArgs, typename... ResultArgs>
+        struct MergeImpl<std::tuple<LeftHead, Left...>, std::tuple<RightHead, Right...>, std::tuple<CompArgs...>, std::tuple<ResultArgs...>,
+                typename std::enable_if<index_of_type<LeftHead, std::tuple<CompArgs...>>::value
+                                <= index_of_type<RightHead, std::tuple<CompArgs...>>::value>::type> {
+            using type = typename MergeImpl<std::tuple<Left...>, std::tuple<RightHead, Right...>, std::tuple<CompArgs...>, std::tuple<ResultArgs..., LeftHead>>::type;
+        };
+
 
 } // namespace internal
 
@@ -130,6 +149,6 @@ template<template<typename> class Predicate, typename Tuple> using filter = type
 template<typename Tuple> using unique = typename internal::UniqueImpl<Tuple>::type;
 template<typename T, typename Tuple> using without = typename internal::WithoutImpl<T, Tuple>::type;
 template<typename A, typename B> using interleave = typename internal::InterleaveImpl<A, B>::type;
-// template<typename A, typename B> using merge = typename internal::MergeImpl<A, B>::type;
+template<typename A, typename B, typename Comparison> using merge = typename internal::MergeImpl<A, B, unique<Comparison>>::type;
 
 } // namespace mtl

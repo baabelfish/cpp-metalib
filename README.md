@@ -14,21 +14,23 @@ using Example = std::tuple<int, long, char, long, int, int>;
 using A = std::tuple<int, int>;
 using B = std::tuple<long>;
 using C = std::tuple<long, char>;
+using X = std::tuple<char, int, long>;
 using namespace mtl;
 ```
 
 | Function (Type really)  | Description                                 | Example |
-|------------|---------------------------------------------|---------|
-| has\_type  | Check if tuple has a type                   | ``has_type<int, Example>::value == true`` |
-| select     | Selects all defined fields from a tuple     | ``select<Example, 2, 1, 0> // std::tuple<char, long, int>`` |
-| head       | Selects the first type from a tuple         | ``head<Example> // int`` |
-| tail       | All but first from a tuple                  | ``tail<Example> // std::tuple<long, char, long, int, int>`` |
-| concat     | Combines N-tuples into one                  | ``concat<A, B> // std::tuple<int, int, long>`` |
-| transform  | Transforms types in a tuple                 | ``transform<A, identity> // std::tuple<int, int>`` |
-| filter     | Filters types from a tuple with a predicate | ``filter<no_ints, Example> // std::tuple<long, char, long>`` |
-| unique     | Returns a new tuple with only unique types  | ``unique<Example> // std::tuple<int, long, char>`` |
-| without    | Returns tuple without type T                | ``without<int, Example> // std::tuple<long, char, long>`` |
-| interleave | Interleaves two tuples                      | ``interleave<A, C> // std::tuple<int, long, int, char>`` |
+|------------|---------------------------------------------------|---------|
+| has\_type  | Check if tuple has a type                         | ``has_type<int, Example>::value == true`` |
+| select     | Selects all defined fields from a tuple           | ``select<Example, 2, 1, 0> // std::tuple<char, long, int>`` |
+| head       | Selects the first type from a tuple               | ``head<Example> // int`` |
+| tail       | All but first from a tuple                        | ``tail<Example> // std::tuple<long, char, long, int, int>`` |
+| concat     | Combines N-tuples into one                        | ``concat<A, B> // std::tuple<int, int, long>`` |
+| transform  | Transforms types in a tuple                       | ``transform<A, identity> // std::tuple<int, int>`` |
+| filter     | Filters types from a tuple with a predicate       | ``filter<no_ints, Example> // std::tuple<long, char, long>`` |
+| unique     | Returns a new tuple with only unique types        | ``unique<Example> // std::tuple<int, long, char>`` |
+| without    | Returns tuple without type T                      | ``without<int, Example> // std::tuple<long, char, long>`` |
+| interleave | Interleaves two tuples                            | ``interleave<A, C> // std::tuple<int, long, int, char>`` |
+| merge      | Merges two using a third type tuple as comparison | ``merge<A, C, X> // std::tuple<int, int, lontg, char>`` |
 
 
 # Constants
@@ -62,5 +64,5 @@ using my_function_traits = mtl::function_traits<decltype(my_function)>;
 | return\_type          | Return type of the function     |
 | return\_type\_decayed | Return type decayed             |
 | arg\_types            | Argument types as tuple         |
-| arg\_types\_deacyed   | Decayed argument types as tuple |
+| arg\_types\_decayed   | Decayed argument types as tuple |
 | arg\_size             | Amount of arguments             |

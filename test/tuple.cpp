@@ -1,4 +1,5 @@
 #include "../mtl.hpp"
+#include "../src/debug.hpp"
 #include <iostream>
 
 using A = std::tuple<int, int>;
@@ -63,14 +64,21 @@ static_assert(std::is_same<std::tuple<int, char, float, long>,
 static_assert(std::is_same<std::tuple<char, float, char, long>,
                            mtl::without<int, std::tuple<int, char, int, float, char, long>>>::value, "");
 
-// Tuple
+// Interleave
 // ================================================================================
 static_assert(std::is_same<std::tuple<int, long, char, long, int, long>,
                            mtl::interleave<std::tuple<int, char, int>, std::tuple<long, long, long>>>::value, "");
 static_assert(std::is_same<std::tuple<int, char, char>,
                            mtl::interleave<std::tuple<int>, std::tuple<char, char>>>::value, "");
 
+// Merge
+// ================================================================================
+using MA = std::tuple<float, int, float>;
+using MB = std::tuple<int, char, char>;
+using MVec = std::tuple<float, int, char>;
 
-int main() {
-    return 0;
-}
+using MC = mtl::merge<MA, MB, MVec>;
+static_assert(std::tuple_size<MC>::value == 6, "");
+static_assert(std::is_same<std::tuple<float, int, float, int, char, char>, MC>::value, "");
+
+int main() { return 0; }
