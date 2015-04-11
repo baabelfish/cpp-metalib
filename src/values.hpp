@@ -30,9 +30,4 @@ template<typename T>
             struct value { using type = T; };
     };
 
-template<typename T>
-    struct TypeHash {
-        static constexpr auto value = typeid(T).hash_code();
-    };
-
 } // namespace mtl

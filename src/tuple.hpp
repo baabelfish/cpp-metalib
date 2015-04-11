@@ -41,6 +41,7 @@ namespace internal {
         };
 
     template<typename Tuple> struct TailImpl;
+    template<> struct TailImpl<std::tuple<>> { using type = std::tuple<>; };
     template<typename First, typename... Params>
         struct TailImpl<std::tuple<First, Params...>> {
             using type = std::tuple<Params...>;

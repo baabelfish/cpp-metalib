@@ -36,6 +36,8 @@ static_assert(std::is_same<std::tuple<char, int>,
 // ================================================================================
 static_assert(std::is_same<std::tuple<int, long, char>,
                            mtl::tail<C>>::value, "");
+static_assert(std::is_same<std::tuple<>,
+                           mtl::tail<std::tuple<>>>::value, "");
 
 // Transform
 // ================================================================================
