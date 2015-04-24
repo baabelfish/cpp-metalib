@@ -186,5 +186,6 @@ template<typename A, typename B> using interleave = typename internal::Interleav
 template<typename A, typename B, typename Comparison> using merge = typename internal::MergeImpl<A, B, unique<Comparison>>::type;
 template<typename Tuple, typename Pivot, typename Comparison> using partition = typename internal::PartitionImpl<Tuple, Pivot, Comparison>::type;
 template<typename Tuple, typename Comparison> using sort = typename internal::SortImpl<Tuple, Comparison>::type;
+template<typename T, typename... Types> constexpr auto index_of = internal::index_of_type<std::decay<T>, std::tuple<std::decay<Types>...>>::value;
 
 } // namespace mtl
