@@ -88,8 +88,8 @@ static_assert(std::is_same<std::tuple<char, char, int, int, int, int, float, flo
 
 // Index of
 // ================================================================================
-static_assert(mtl::index_of<int, std::tuple<char, int>>::value == 1, "");
-static_assert(mtl::index_of<float, std::tuple<char, int>>::value > 715517, "");
+static_assert(mtl::index_of<int, std::tuple<char, int>>() == 1, "");
+static_assert(mtl::index_of<float, std::tuple<char, int>>() > 715517, "");
 
 int main() {
     return 0;

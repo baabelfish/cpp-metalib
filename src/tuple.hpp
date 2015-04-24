@@ -8,26 +8,26 @@
 namespace mtl {
 
 namespace internal {
-    static constexpr std::size_t Max = std::numeric_limits<std::size_t>::max();
+    static const std::size_t Max = std::numeric_limits<std::size_t>::max();
 
     template<typename Target, class Tuple> struct index_of_type;
     template<typename Target>
         struct index_of_type<Target, std::tuple<>> {
-            static constexpr auto value = Max;
+            static const auto value = Max;
         };
     template<typename Target, typename... Rest>
         struct index_of_type<Target, std::tuple<Target, Rest...>> {
-            static constexpr auto value = 0;
+            static const auto value = 0;
         };
     template<typename Target, typename First, typename... Rest>
         struct index_of_type<Target, std::tuple<First, Rest...>> {
-            static constexpr auto next = index_of_type<Target, std::tuple<Rest...>>::value;
-            static constexpr auto value = next == Max ? Max : next + 1;
+            static const auto next = index_of_type<Target, std::tuple<Rest...>>::value;
+            static const auto value = next == Max ? Max : next + 1;
         };
 
     template <typename Target, class Tuple, std::size_t From = 0>
         struct has_type {
-            static constexpr auto value = internal::index_of_type<Target, Tuple>::value != internal::Max;
+            static const auto value = internal::index_of_type<Target, Tuple>::value != internal::Max;
         };
 
     template<typename Result, typename... Tuples> struct ConcatImpl;
@@ -186,6 +186,10 @@ template<typename A, typename B> using interleave = typename internal::Interleav
 template<typename A, typename B, typename Comparison> using merge = typename internal::MergeImpl<A, B, unique<Comparison>>::type;
 template<typename Tuple, typename Pivot, typename Comparison> using partition = typename internal::PartitionImpl<Tuple, Pivot, Comparison>::type;
 template<typename Tuple, typename Comparison> using sort = typename internal::SortImpl<Tuple, Comparison>::type;
-template<typename T, typename Tuple> using index_of = typename internal::index_of_type<T, Tuple>;
+
+template<typename T, typename Tuple>
+    constexpr std::size_t index_of() {
+        return internal::index_of_type<T, Tuple>::value;
+    }
 
 } // namespace mtl
